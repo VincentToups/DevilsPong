@@ -80,7 +80,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (include "sounds.scm")
 (include "sorting.scm")
+
 (include "drawing.scm")
+
 (include "components.scm")
 (include "systems.scm")
 
