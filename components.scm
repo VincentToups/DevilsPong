@@ -67,8 +67,6 @@
     (make-pos (pos-x v)
               (fl* p (pos-y v))))))
 
-
-
 (define-component c-position (e x y)
   ;; (assert (number? x))
   ;; (assert (number? y))
@@ -89,6 +87,24 @@
    (lambda (pos)
      (assert-match pos (pos (? number? x) (? number? y)))
      (b pos))))
+
+(define (set-pos! e x y)
+  (cond
+   ((entity-has-component? e c-position)
+    (let ((pos (entity-component e c-position)))
+      (pos-x-set! pos (exact->inexact x))
+      (pos-y-set! pos (exact->inexact y))))
+   (else
+    (add-component! e c-position x y))))
+
+(define (set-vel! e x y)
+  (cond
+   ((entity-has-component? e c-velocity)
+    (let ((pos (entity-component e c-velocity)))
+      (pos-x-set! pos (exact->inexact x))
+      (pos-y-set! pos (exact->inexact y))))
+   (else
+    (add-component! e c-velocity x y))))
 
 
 (define (t/pos e b)
