@@ -9,6 +9,20 @@ It is written in Lambdanative/Scheme and should run on most modern
 platforms, though there seems to be a bug in Lambdanative which is
 preventing the ios version from using portrait mode correctly. 
 
+Building
+========
+
+Set up [Lambdanative][] and then clone this repository into the apps
+directory.  Then, from the lambdanative root directory:
+
+    ./configure DevilsPong 
+    make
+    make install 
+
+This should build for your current platform.
+
+[Lambdanative]:https://github.com/part-cw/lambdanative
+
 Notes on Game Design
 ====================
 
@@ -126,3 +140,4 @@ callbacks are in place in the system that manages collisions with the
 edge of the playfield which should probably be more abstract. 
 
 Anyway, I hope the code is pretty readable. Start in "main.scm".
+
