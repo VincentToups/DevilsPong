@@ -71,7 +71,6 @@
       (shorten-vector-y vel restitution)
       (if (< (pos-y vel) .03)
           (pos-y-set! vel 0))
-      (log-system vel)
       (audiofile-play *pong*))
      ((entity-left-left-of-bounding-box? e bb)
       (pos-x-set! pos (bounding-box-x bb))

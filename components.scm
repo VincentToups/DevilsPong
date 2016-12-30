@@ -154,7 +154,6 @@
   (define (draw e)
     (let ((w (entity-component e c-width))
           (h (entity-component e c-height)))
-      (log-system (list "rect" w h))
       (w/pos e (lambda (p)
                  (let ((x (pos-x p))
                        (y (pos-y p)))

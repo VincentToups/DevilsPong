@@ -228,7 +228,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
              (apply draw-sprite x y s))))))
 
 (define (paddle-ball-interaction paddle ball)
-  (log-system (list 'paddle-ball-interaction paddle ball))
   (let ((ball-top (top-of ball))
         (ball-bottom (bottom-of ball))
         (ball-left (left-of ball))
@@ -239,8 +238,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         (paddle-bottom (bottom-of paddle))
         (paddle-left (left-of paddle))
         (paddle-right (right-of paddle))
-        (paddle-pos (entity-component paddle c-position)))
-    (log-system "Done with bindings")
+        (paddle-pos (entity-component paddle c-position))
+        (paddle-velocity (entity-component paddle c-velocity)))
     (if (and
          (< ball-bottom paddle-top)
          (> ball-top paddle-bottom))
@@ -248,24 +247,50 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           ((and
             (> ball-left paddle-left)
             (< ball-left paddle-right))
-           (log-system "branch 1")
            (pos-x-set! ball-position paddle-right)
-           (pos-x-set! ball-velocity (* 1.1 (- (pos-x ball-velocity))))
+           (pos-x-set! ball-velocity (*
+                                      (if (< *volley* 12) 1.1 1.0)
+                                      (- (pos-x ball-velocity))))
+           (pos-y-set! ball-velocity (+ (pos-y ball-velocity)
+                                        (* 0.1 (pos-y paddle-velocity))))
            (set! *volley* (+ 1 *volley*))
            (audiofile-play *pong*))
           ((and
             (< ball-right paddle-right)
             (> ball-right paddle-left))
-           (log-system "branch 1")
-           (pos-x-set! ball-velocity (* 1.1 (- (pos-x ball-velocity))))
+           (pos-x-set! ball-velocity (*
+                                      (if (< *volley* 12) 1.1 1.0)
+                                      (- (pos-x ball-velocity))))
+           (pos-y-set! ball-velocity (+ (pos-y ball-velocity)
+                                        (* 0.1 (pos-y paddle-velocity))))
            (pos-x-set! ball-position (- paddle-left (entity-component ball c-width)))
            (set! *volley* (+ 1 *volley*))
-           (audiofile-play *pong*))))
-    (log-system "Done with paddle-ball-interaction")))
+           (audiofile-play *pong*))))))
 
 (define *p1* #f)
 (define *p2* #f)
 (define *ball* #f)
+
+(define *show-fps* #f)
+(define make-frame-rate-entity
+  (let ((measurement 30.0))
+    (lambda (#!key (x (/ *screen-w* 2))
+                   (y 10)
+                   (smoothing 0.99))
+      (entity!
+       (list c-position x y)
+       (list c-drawn -1
+             (lambda (e)
+               (set! measurement
+                     (fl+
+                      (fl* measurement smoothing)
+                      (fl* *dt* (- 1.0 smoothing))))
+               (if *show-fps*
+                   (apply draw-sprite
+                          x y
+                          (center-string!
+                           (string-append "FPS: "
+                                          (number->string (inexact->exact (round (fl/ 1.0 (fl/ measurement 1000.0)))))))))))))))
 
 (main
 ;; initialization
@@ -281,6 +306,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       (make-instructions-p2)
       (make-volley-display)
       (make-reset-instructions)
+      (make-frame-rate-entity)
       (set! left-callback
             (lambda ()
               (set! *p2-score* (+ 1 *p2-score*))
@@ -327,6 +353,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                         ;             (add-force *p2* 0 0.01)
              (set-vel! *p2* 0 (* 0.1 5))
              (audiofile-play *bump*))
+            ((#\f)
+             (set! *show-fps* (not *show-fps*)))
             ((#\r)
              (log-system "reset key")
              (set! *p1-score* 0)
